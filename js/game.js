@@ -13,7 +13,7 @@ let availableQuesions = [];
 
 let questions = [];
 
-fetch("https://opentdb.com/api.php?amount=50&category=11")
+fetch("https://opentdb.com/api.php?amount=30&category=11")
     .then((res) => {
         return res.json();
     })
@@ -46,7 +46,7 @@ fetch("https://opentdb.com/api.php?amount=50&category=11")
 
 //CONSTANTS
 const CORRECT_BONUS = 10;
-const MAX_QUESTIONS = 3;
+const MAX_QUESTIONS = 30;
 
 startGame = () => {
     questionCounter = 0;
@@ -64,17 +64,17 @@ getNewQuestion = () => {
         return window.location.assign('/end.html');
     }
     questionCounter++;
-    progressText.innerText = `Question ${questionCounter}/${MAX_QUESTIONS}`;
+    progressText.innerHTML = `Question ${questionCounter}/${MAX_QUESTIONS}`;
     //Update the progress bar
     progressBarFull.style.width = `${(questionCounter / MAX_QUESTIONS) * 100}%`;
 
     const questionIndex = Math.floor(Math.random() * availableQuesions.length);
     currentQuestion = availableQuesions[questionIndex];
-    question.innerText = currentQuestion.question;
+    question.innerHTML = currentQuestion.question;
 
     choices.forEach((choice) => {
         const number = choice.dataset['number'];
-        choice.innerText = currentQuestion['choice' + number];
+        choice.innerHTML = currentQuestion['choice' + number];
     });
 
     availableQuesions.splice(questionIndex, 1);
@@ -107,5 +107,5 @@ choices.forEach((choice) => {
 
 incrementScore = (num) => {
     score += num;
-    scoreText.innerText = score;
+    scoreText.innerHTML = score;
 };
