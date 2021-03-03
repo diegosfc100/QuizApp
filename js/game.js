@@ -1,9 +1,10 @@
-
 const question = document.getElementById('question');
 const choices = Array.from(document.getElementsByClassName('choice-text'));
 const progressText = document.getElementById('progressText');
 const scoreText = document.getElementById('score');
 const progressBarFull = document.getElementById('progressBarFull');
+const loader = document.getElementById('loader');
+const game = document.getElementById('game');
 let currentQuestion = {};
 let acceptingAnswers = false;
 let score = 0;
@@ -13,7 +14,6 @@ let availableQuesions = [];
 let questions = [];
 
 fetch("https://opentdb.com/api.php?amount=50&category=11")
-
     .then((res) => {
         return res.json();
     })
@@ -37,6 +37,7 @@ fetch("https://opentdb.com/api.php?amount=50&category=11")
 
             return formattedQuestion;
         });
+
         startGame();
     })
     .catch((err) => {
@@ -52,6 +53,8 @@ startGame = () => {
     score = 0;
     availableQuesions = [...questions];
     getNewQuestion();
+    game.classList.remove('hidden');
+    loader.classList.add('hidden');
 };
 
 getNewQuestion = () => {
