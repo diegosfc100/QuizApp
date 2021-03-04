@@ -1,8 +1,12 @@
-const highScoresList = document.getElementById("highScoresList");
-const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+const highScoresList = document.getElementById('highScoresList')
+const highScores = JSON.parse(localStorage.getItem('highScores')) || []
+const noHighScore = document.getElementById('noHighScore')
 
-highScoresList.innerHTML = highScores
-  .map(score => {
-    return `<li class="high-score">${score.name} - ${score.score}</li>`;
-  })
-  .join("");
+if (!highScores.length) {
+  noHighScore.classList.remove('hidden')
+}
+
+
+highScoresList.innerHTML = highScores.map(score => {
+  return `<li class='high-score'>${score.username} - ${score.score} </li>`
+}).join('')
