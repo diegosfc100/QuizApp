@@ -5,19 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Congrats!</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="css/end.css" />
 </head>
+
   <body>
     <div class="container">
+      <div class="overlay hidden"></div>
       <div id="end" class="flex-center flex-column">
-        <h1 id="finalScore"></h1>
-        <form>
-        <input type="text" name="username" id="username" placeholder="username"/>
-        <button type="submit" class="btn" id="saveScoreBtn" onclick="saveHighScore(event)" disabled>Save</button>
+        <h1 id="congrats">Congratulations!</h1>
+
+        <h2 id="scoreMessage">
+          New high score!
+        </h2>
+        <h2 id="finalScore"></h2>
+
+        <form
+          id="saveHighScoreForm"
+          onsubmit="event.preventDefault()"
+          class="hidden"
+        >
+          <input
+            type="text"
+            name="username"
+            id="username"
+            placeholder="username"
+          />
+
+          <button
+            type="submit"
+            class="btn"
+            id="saveScoreBtn"
+            onclick="saveHighScore(event)"
+            disabled
+          >
+            Save
+          </button>
+
+          <button class="btn playAgainBtn" href="./game.html">
+            Play Again
+          </button>
+          <button class="btn" id="goHome" href="/">Go Home</button>
         </form>
-        <a class="btn" href="/game.html">Play Again</a>
-        <a class="btn" href="/">Go Home</a>
-      </div>
+        <button class="btn" id="shareBtn" href="">
+          share
+        </button>
+        
+        <button class="btn playAgainBtn hidden" href="./game.html">
+          Play Again
+        </button>
+
+
+
+        <div class="shareContainer hidden">
+        <!-- <div>Icons made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>      </div> -->
+        <!-- Icons made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a> -->
+        </div>
+
     </div>
     <script src="js/end.js"></script>
   </body>   
