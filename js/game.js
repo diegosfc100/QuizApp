@@ -1,111 +1,195 @@
 const question = document.getElementById('question');
-const choices = Array.from(document.getElementsByClassName('choice-text'));
-const progressText = document.getElementById('progressText');
-const scoreText = document.getElementById('score');
-const progressBarFull = document.getElementById('progressBarFull');
-const loader = document.getElementById('loader');
+const choices = Array.from(document.getElementsByClassName('choice-text'))
+const scoreText = document.getElementById('score')
+const progressText = document.getElementById('progressText')
+const progressBar = document.getElementById('progressBarFull')
 const game = document.getElementById('game');
-let currentQuestion = {};
+const loader = document.querySelector('.loader')
+const passed = document.getElementById('passed')
+const failed = document.getElementById('failed')
+const difficultyInputs = Array.from(document.querySelectorAll('form#difficultyForm input'))
+const difficultyForm = document.getElementById('difficultyForm')
+
+const CORRECT_BONUS = 10;
+const MAX_QUESTIONS = 10;
+
+
+
+let currentQuestion = {}
 let acceptingAnswers = false;
 let score = 0;
 let questionCounter = 0;
-let availableQuesions = [];
+let availableQuestions = []
+let correctAnswer
+let passedCounter = 0;
+let failedCounter = 0;
+let questions = []
 
-let questions = [];
+let apiURL = ""
 
-fetch("https://opentdb.com/api.php?amount=30&category=11")
-    .then((res) => {
-        return res.json();
-    })
-    .then((loadedQuestions) => {
-        questions = loadedQuestions.results.map((loadedQuestion) => {
-            const formattedQuestion = {
-                question: loadedQuestion.question,
-            };
+const API_URL = 'https://opentdb.com/api.php?amount=10&type=multiple'
 
-            const answerChoices = [...loadedQuestion.incorrect_answers];
-            formattedQuestion.answer = Math.floor(Math.random() * 4) + 1;
-            answerChoices.splice(
-                formattedQuestion.answer - 1,
-                0,
-                loadedQuestion.correct_answer
-            );
 
-            answerChoices.forEach((choice, index) => {
-                formattedQuestion['choice' + (index + 1)] = choice;
-            });
+const decodeHTMLCharacters = (sentence) => sentence.
+  replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&')
+  .replace(/&lrm;/g, "");
 
-            return formattedQuestion;
-        });
+// Setting game difficulty from users input
+difficultyInputs.forEach(input => input.addEventListener('click', e => getQuestions(e)))
 
-        startGame();
-    })
-    .catch((err) => {
-        console.error(err);
-    });
+// const
+const getQuestions = (e) => {
+  // showing the loader and removing the form
+  loader.classList.remove('hidden')
+  difficultyForm.style.display = "none"
 
-//CONSTANTS
-const CORRECT_BONUS = 10;
-const MAX_QUESTIONS = 30;
+  apiURL = `https://opentdb.com/api.php?amount=10&difficulty=${e.target.value}`
 
-startGame = () => {
-    questionCounter = 0;
-    score = 0;
-    availableQuesions = [...questions];
-    getNewQuestion();
-    game.classList.remove('hidden');
-    loader.classList.add('hidden');
-};
+  fetch(apiURL)
+    .then(response => response.json())
+    .then(loadedQuestions => {
 
-getNewQuestion = () => {
-    if (availableQuesions.length === 0 || questionCounter >= MAX_QUESTIONS) {
-        localStorage.setItem('mostRecentScore', score);
-        //go to the end page
-        return window.location.assign('/end.html');
-    }
-    questionCounter++;
-    progressText.innerHTML = `Question ${questionCounter}/${MAX_QUESTIONS}`;
-    //Update the progress bar
-    progressBarFull.style.width = `${(questionCounter / MAX_QUESTIONS) * 100}%`;
-
-    const questionIndex = Math.floor(Math.random() * availableQuesions.length);
-    currentQuestion = availableQuesions[questionIndex];
-    question.innerHTML = currentQuestion.question;
-
-    choices.forEach((choice) => {
-        const number = choice.dataset['number'];
-        choice.innerHTML = currentQuestion['choice' + number];
-    });
-
-    availableQuesions.splice(questionIndex, 1);
-    acceptingAnswers = true;
-};
-
-choices.forEach((choice) => {
-    choice.addEventListener('click', (e) => {
-        if (!acceptingAnswers) return;
-
-        acceptingAnswers = false;
-        const selectedChoice = e.target;
-        const selectedAnswer = selectedChoice.dataset['number'];
-
-        const classToApply =
-            selectedAnswer == currentQuestion.answer ? 'correct' : 'incorrect';
-
-        if (classToApply === 'correct') {
-            incrementScore(CORRECT_BONUS);
+      // formating the loaded question into what we need
+      const formattedQuestions = loadedQuestions.results.map(loadedQuestion => {
+        // console.log(loadedQuestion.correct_answer)
+        const formattedQuestion = {
+          question: loadedQuestion.question,
         }
 
-        selectedChoice.parentElement.classList.add(classToApply);
+        const answerChoices = [...loadedQuestion.incorrect_answers];
+        formattedQuestion.answer = Math.floor(Math.random() * 3) + 1;
 
-        setTimeout(() => {
-            selectedChoice.parentElement.classList.remove(classToApply);
-            getNewQuestion();
-        }, 1000);
-    });
-});
+        answerChoices.splice(formattedQuestion.answer - 1, 0, loadedQuestion.correct_answer)
+        // console.log(answerChoices)
 
-incrementScore = (num) => {
-    score += num;
-    scoreText.innerHTML = score;
-};
+        answerChoices.forEach((choice, index) => {
+          formattedQuestion[`choice${index + 1}`] = choice;
+        })
+
+        return formattedQuestion
+      })
+
+      questions = formattedQuestions
+
+      startGame()
+    })
+    .catch(err => console.log(err))
+}
+
+
+const startGame = () => {
+  // reseting util variables at game start
+  // Getting a copy of the questions into available question using spread operator
+  questionCounter = 0;
+  score = 0;
+  failedCounter = 0;
+  passedCounter = 0
+  availableQuestions = [...questions]
+
+  // Getting a new question
+  getNewQuestion()
+
+  // Removing and adding loader
+  loader.classList.add('hidden')
+  game.classList.remove('hidden')
+
+}
+
+
+const getNewQuestion = () => {
+  // when questions are finished or we've reached the maximum number of question a user can anwser
+  // go to end page
+  if (availableQuestions.length === 0 || questionCounter >= MAX_QUESTIONS) {
+    // save recent score to localstorage
+    localStorage.setItem('mostRecentScore', score)
+
+    // go to end page
+    return window.location.assign("../pages/end.html")
+  }
+
+  // Increasing the question couter and progressbar
+  questionCounter++
+  progressText.innerText = `Question ${questionCounter}/${MAX_QUESTIONS}`
+  progressBar.style.width = `${questionCounter / MAX_QUESTIONS * 100}%`;
+
+  // Get a random question and assign it to currentQeustion
+  const newQestionIndex = Math.floor(Math.random() * availableQuestions.length);
+  currentQuestion = availableQuestions[newQestionIndex]
+
+  // Display the current question 
+  question.innerText = decodeHTMLCharacters(currentQuestion.question)
+
+  // Display the choices
+  choices.forEach(choice => {
+    console.log(choice)
+    const number = choice.dataset['number']
+    choice.innerText = currentQuestion["choice" + number]
+
+  })
+
+
+
+  // removing the current question so it doesn't get asked again
+  availableQuestions.splice(newQestionIndex, 1);
+
+  acceptingAnswers = true;
+
+}
+
+// Get and style correct answer 
+const getCorrectAnswer = (choices) => {
+  choices.forEach(choice => {
+    if (+choice.dataset['number'] === currentQuestion.answer)
+      correctAnswer = choice
+  })
+
+  setTimeout(() => {
+    correctAnswer.classList.add('correct')
+  }, 300)
+
+  setTimeout(() => {
+    correctAnswer.classList.remove('correct')
+  }, 1000)
+}
+
+
+// Check for correct answer
+choices.forEach((choice, index, choices) => {
+
+  choice.addEventListener('click', e => {
+    // stop if we are not accepting questions
+    if (!acceptingAnswers) return;
+
+    acceptingAnswers = false;
+    const selectedChoice = e.target;
+    const selectedAnswer = +choice.dataset['number']
+
+    // Styles to apply if answer is correct or not
+    const classToApply = selectedAnswer === currentQuestion.answer ? 'correct' : 'incorrect'
+
+    selectedChoice.parentElement.classList.add(classToApply)
+
+    if (classToApply === 'correct') {
+      incrementScore(CORRECT_BONUS)
+      passedCounter++
+      passed.innerText = `Passed - ${passedCounter}`
+    } else {
+      failedCounter++
+      failed.innerText = `Failed - ${failedCounter}`
+    }
+
+    // delay the style before moving to next question
+    setTimeout(() => {
+      selectedChoice.parentElement.classList.remove(classToApply)
+      getNewQuestion()
+    }, 1000)
+
+    getCorrectAnswer(choices)
+
+  })
+})
+
+const incrementScore = number => {
+  score += number
+  scoreText.innerText = score;
+}
