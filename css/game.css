@@ -129,26 +129,6 @@ p#failed {
   color: #dc3545;
 }
 
-/* LOADER */
-div.loader {
-  border: 1rem solid white;
-  border-radius: 50%;
-  border-top: 1rem solid #56a5eb;
-  height: 7rem;
-  width: 7rem;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 /* MEDIA QUERIES */
 
 @media (max-width: 600px) {
