@@ -10,3 +10,5 @@ if (!highScores.length) {
 highScoresList.innerHTML = highScores.map(score => {
   return `<li class='high-score'>${score.username} - ${score.score} </li>`
 }).join('')
+
+
