@@ -35,7 +35,7 @@ let questions = [];
 
 let apiURL = "";
 
-const API_URL = "https://opentdb.com/api.php?amount=10&type=multiple";
+const API_URL = "https://opentdb.com/api.php?amount=50&category=11&difficulty=medium&type=multiple";
 
 const decodeHTMLCharacters = sentence =>
   sentence
